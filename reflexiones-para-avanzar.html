@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reflexiones para Avanzar</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap');
+
+:root {
+  --beige:#F2EDE4; --ivory:#FAF7F2; --graphite:#2C2C2C;
+  --petrol:#2F4858; --sage:#7A9E87; --warm:#C4A96A; --divider:#DDD6CC;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#E8E3DC;min-height:100vh;font-family:'Jost',sans-serif;color:var(--graphite);
+  display:flex;flex-direction:column;align-items:center;padding:36px 16px 56px;gap:32px;}
+
+.brand{text-align:center;}
+.brand h1{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:13px;
+  letter-spacing:.5em;text-transform:uppercase;color:#4A4540;}
+.brand-line{width:36px;height:1px;background:var(--warm);margin:8px auto 0;}
+
+.workspace{display:flex;gap:44px;align-items:flex-start;width:100%;max-width:1080px;flex-wrap:wrap;justify-content:center;}
+
+.panel{background:var(--ivory);border:1px solid var(--divider);padding:28px 24px;width:290px;
+  display:flex;flex-direction:column;gap:20px;flex-shrink:0;}
+.plabel{font-size:9px;letter-spacing:.4em;text-transform:uppercase;color:#A09070;margin-bottom:8px;font-weight:500;}
+textarea,input,select{width:100%;background:var(--beige);border:1px solid var(--divider);
+  color:var(--graphite);font-family:'Cormorant Garamond',serif;font-size:15px;
+  padding:9px 11px;outline:none;transition:border-color .2s;resize:vertical;}
+textarea{min-height:86px;line-height:1.5;}
+textarea:focus,input:focus,select:focus{border-color:var(--petrol);}
+
+.day-row{display:flex;align-items:center;gap:8px;}
+.day-row input{width:64px;text-align:center;font-size:20px;padding:5px;}
+.dnav{width:30px;height:30px;background:var(--beige);border:1px solid var(--divider);
+  font-size:17px;cursor:pointer;color:#4A4540;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;transition:background .15s;}
+.dnav:hover{background:var(--divider);}
+
+.pals{display:flex;gap:8px;}
+.pdot{width:26px;height:26px;border-radius:50%;border:2px solid transparent;
+  cursor:pointer;transition:transform .15s,border-color .15s;}
+.pdot:hover{transform:scale(1.15);}
+.pdot.on{border-color:var(--graphite);}
+
+.gen-btn{width:100%;padding:12px;background:var(--petrol);border:none;color:var(--ivory);
+  font-family:'Jost',sans-serif;font-size:10px;letter-spacing:.35em;text-transform:uppercase;
+  cursor:pointer;transition:background .2s;font-weight:500;}
+.gen-btn:hover{background:#1e3040;}
+.gen-btn:disabled{opacity:.45;cursor:not-allowed;}
+
+.dl-btn{width:100%;padding:10px;background:transparent;border:1px solid var(--sage);
+  color:var(--sage);font-family:'Jost',sans-serif;font-size:10px;letter-spacing:.3em;
+  text-transform:uppercase;cursor:pointer;transition:background .2s;}
+.dl-btn:hover{background:rgba(122,158,135,.1);}
+
+.status{font-size:11px;color:#7A7060;text-align:center;font-style:italic;min-height:16px;}
+.fmts{display:flex;gap:5px;flex-wrap:wrap;}
+.ftag{font-size:9px;letter-spacing:.1em;padding:3px 7px;border:1px solid var(--divider);color:#7A7060;background:var(--beige);}
+
+.preview-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.pvlabel{font-size:9px;letter-spacing:.4em;text-transform:uppercase;color:#A09070;}
+
+#card{width:520px;height:520px;position:relative;overflow:hidden;flex-shrink:0;background:#c8c0b0;}
+#card-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:background-image .5s;}
+#card-ov1{position:absolute;inset:0;}
+#card-ov2{position:absolute;inset:0;background:linear-gradient(to right,rgba(0,0,0,.45) 0%,rgba(0,0,0,.22) 55%,rgba(0,0,0,.05) 100%);}
+#card-ov3{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.28) 0%,transparent 55%);}
+#card-content{position:relative;z-index:4;height:100%;display:flex;flex-direction:column;justify-content:center;padding:56px 52px;}
+
+.cc-brand{position:absolute;top:28px;left:52px;font-family:'Jost',sans-serif;font-size:8.5px;
+  letter-spacing:.5em;text-transform:uppercase;font-weight:300;opacity:.75;}
+.cc-openquote{font-family:'Cormorant Garamond',serif;font-size:80px;line-height:.6;
+  margin-bottom:8px;opacity:.5;font-weight:300;display:block;}
+.cc-quote{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;line-height:1.42;}
+.cc-rule-wrap{display:flex;align-items:center;gap:8px;margin:22px 0 16px;}
+.cc-rule{height:1px;width:40px;}
+.cc-dot{width:5px;height:5px;border-radius:50%;}
+.cc-dash{font-size:14px;margin-right:4px;opacity:.75;}
+.cc-author{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;letter-spacing:.03em;}
+.cc-leaf{position:absolute;bottom:28px;left:52px;z-index:4;opacity:.65;}
+.cc-leaf svg{width:22px;height:22px;}
+.cc-day{position:absolute;bottom:32px;right:52px;font-family:'Jost',sans-serif;font-size:8px;
+  letter-spacing:.35em;text-transform:uppercase;font-weight:300;opacity:.5;z-index:4;}
+
+#card-loader{position:absolute;inset:0;z-index:10;background:rgba(242,237,228,.92);
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+#card-loader.on{display:flex;}
+.spin{width:32px;height:32px;border-radius:50%;border:2px solid var(--divider);
+  border-top-color:var(--petrol);animation:sp .85s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.spin-txt{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#7A7060;}
+
+@media(max-width:660px){#card{width:340px;height:340px;}.panel{width:340px;}}
+</style>
+</head>
+<body>
+
+<div class="brand">
+  <h1>Reflexiones para Avanzar</h1>
+  <div class="brand-line"></div>
+</div>
+
+<div class="workspace">
+  <div class="panel">
+    <div>
+      <div class="plabel">Día del año</div>
+      <div class="day-row">
+        <button class="dnav" onclick="changeDay(-1)">‹</button>
+        <input type="number" id="dayNum" value="1" min="1" max="365" onchange="loadDay()">
+        <button class="dnav" onclick="changeDay(1)">›</button>
+      </div>
+    </div>
+    <div>
+      <div class="plabel">Frase</div>
+      <textarea id="qText" oninput="updateText()"></textarea>
+    </div>
+    <div>
+      <div class="plabel">Autor</div>
+      <input type="text" id="aText" oninput="updateText()">
+    </div>
+    <div>
+      <div class="plabel">Tema visual</div>
+      <select id="imgTheme">
+        <option value="auto">✦ Automático según la frase</option>
+        <option value="winter mountain fog">Montaña · invierno · niebla</option>
+        <option value="forest light rays">Bosque · luz entre árboles</option>
+        <option value="road fog path">Camino solitario · niebla</option>
+        <option value="ocean sunset">Mar · atardecer · horizonte</option>
+        <option value="sunrise field">Campo abierto · amanecer</option>
+        <option value="lighthouse storm">Faro · tormenta</option>
+        <option value="rain window">Ventana · lluvia</option>
+        <option value="book coffee">Libro · café · luz</option>
+        <option value="snow mountain">Cima nevada · nubes</option>
+        <option value="tree autumn">Árbol solitario · otoño</option>
+      </select>
+    </div>
+    <div>
+      <div class="plabel">Paleta</div>
+      <div class="pals">
+        <div class="pdot on" data-p="warm"    style="background:radial-gradient(circle,#c8a06080,#1a100a)" title="Cálido"></div>
+        <div class="pdot"   data-p="cool"    style="background:radial-gradient(circle,#607080,#0a1018)" title="Frío"></div>
+        <div class="pdot"   data-p="mist"    style="background:radial-gradient(circle,#c0bcb4,#606058)" title="Neblina"></div>
+        <div class="pdot"   data-p="forest"  style="background:radial-gradient(circle,#508050,#0a1408)" title="Bosque"></div>
+        <div class="pdot"   data-p="neutral" style="background:radial-gradient(circle,#808078,#181810)" title="Neutro"></div>
+      </div>
+    </div>
+    <div class="status" id="statusTxt">Lista para generar</div>
+    <button class="gen-btn" id="genBtn" onclick="generate()">✦ Generar postal</button>
+    <button class="dl-btn" onclick="downloadCard()">↓ Descargar PNG · 1080 × 1080</button>
+    <div>
+      <div class="plabel">Válido para</div>
+      <div class="fmts">
+        <span class="ftag">TikTok</span><span class="ftag">Instagram</span>
+        <span class="ftag">Facebook</span><span class="ftag">WhatsApp</span>
+        <span class="ftag">Twitter/X</span><span class="ftag">LinkedIn</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="preview-wrap">
+    <span class="pvlabel">Vista previa · 1080 × 1080 px</span>
+    <div id="card">
+      <div id="card-bg"></div>
+      <div id="card-ov1"></div>
+      <div id="card-ov2"></div>
+      <div id="card-ov3"></div>
+      <div id="card-loader"><div class="spin"></div><div class="spin-txt">Buscando imagen…</div></div>
+      <div id="card-content">
+        <span class="cc-brand" id="cc-brand">Reflexiones para Avanzar</span>
+        <span class="cc-openquote" id="cc-oq">"</span>
+        <div class="cc-quote" id="cc-quote">En medio del invierno, descubrí en mí mismo un verano invencible.</div>
+        <div class="cc-rule-wrap">
+          <div class="cc-rule" id="cc-rule"></div>
+          <div class="cc-dot"  id="cc-dot"></div>
+        </div>
+        <div>
+          <span class="cc-dash" id="cc-dash">—</span>
+          <span class="cc-author" id="cc-author">Albert Camus</span>
+        </div>
+      </div>
+      <div class="cc-leaf" id="cc-leaf">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C6 2 3 8 3 14c0 4 2.5 7 6 8"/>
+          <path d="M12 2c6 0 9 6 9 12 0 4-2.5 7-6 8"/>
+          <line x1="12" y1="22" x2="12" y2="10"/>
+        </svg>
+      </div>
+      <div class="cc-day" id="cc-day">Día 1 · 365</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+// ── PEXELS API KEY ──
+const PEXELS_KEY = 'g8bCbGah0Net6aWMSa5RLux6lFodSjMiJPnqBtrBwJINbs4MVanBeRYs';
+
+// ── QUOTES ──
+const QUOTES = [
+  {q:"En medio del invierno, descubrí en mí mismo un verano invencible.",a:"Albert Camus"},
+  {q:"Más allá de las ideas del bien y del mal existe un campo; ahí nos encontraremos.",a:"Rumi"},
+  {q:"Hasta que lo inconsciente no se haga consciente, dirigirá tu vida y lo llamarás destino.",a:"Carl Jung"},
+  {q:"No soy lo que me pasó. Soy lo que elegí ser.",a:"Carl Jung"},
+  {q:"Las heridas son el lugar por donde la luz entra en ti.",a:"Rumi"},
+  {q:"El hombre que tiene un porqué para vivir puede soportar casi cualquier cómo.",a:"Friedrich Nietzsche"},
+  {q:"Quien mira hacia afuera, sueña; quien mira hacia adentro, despierta.",a:"Carl Jung"},
+  {q:"La oscuridad no puede desterrar a la oscuridad; solo la luz puede hacerlo.",a:"Martin Luther King Jr."},
+  {q:"El ser humano es la única criatura que puede negarse a ser lo que es.",a:"Albert Camus"},
+  {q:"Dos caminos divergieron en un bosque, y yo tomé el menos transitado.",a:"Robert Frost"},
+  {q:"La vida solo puede ser entendida hacia atrás, pero debe ser vivida hacia adelante.",a:"Søren Kierkegaard"},
+  {q:"El fin de toda nuestra exploración será llegar al principio y conocerlo por primera vez.",a:"T.S. Eliot"},
+  {q:"Somos todos del arroyo, pero algunos miramos las estrellas.",a:"Oscar Wilde"},
+  {q:"Hay algo más fuerte que todos los ejércitos del mundo: una idea cuyo tiempo ha llegado.",a:"Víctor Hugo"},
+  {q:"La belleza salvará al mundo.",a:"Fyodor Dostoievski"},
+  {q:"Sé fiel a ti mismo y no podrás ser falso con nadie.",a:"William Shakespeare"},
+  {q:"El cobarde muere mil veces; el valiente solo muere una vez.",a:"William Shakespeare"},
+  {q:"La mente no es un vaso que debe llenarse, sino un fuego que debe encenderse.",a:"Plutarco"},
+  {q:"Lo que no te mata, te hace más fuerte.",a:"Friedrich Nietzsche"},
+  {q:"La soledad no viene de no tener personas alrededor, sino de no poder comunicar las cosas que parecen importantes.",a:"Carl Jung"},
+  {q:"El que lucha con monstruos debe cuidar de no convertirse en monstruo él mismo.",a:"Friedrich Nietzsche"},
+  {q:"Entre el estímulo y la respuesta hay un espacio. En ese espacio está nuestro poder para elegir.",a:"Viktor Frankl"},
+  {q:"Las personas olvidarán lo que dijiste, pero nunca olvidarán cómo las hiciste sentir.",a:"Maya Angelou"},
+  {q:"Aún me levanto.",a:"Maya Angelou"},
+  {q:"La mente que se abre a una nueva idea nunca regresa a su tamaño original.",a:"Albert Einstein"},
+  {q:"Vive como si fueras a morir mañana; aprende como si fueras a vivir para siempre.",a:"Mahatma Gandhi"},
+  {q:"No es que tengamos poco tiempo; es que perdemos mucho.",a:"Séneca"},
+  {q:"Dos caminos divergieron en un bosque, y yo tomé el menos transitado.",a:"Robert Frost"},
+  {q:"La esperanza es el sueño del hombre despierto.",a:"Aristóteles"},
+  {q:"No soy lo que me pasó. Soy lo que elegí ser.",a:"Carl Jung"},
+];
+function getQuote(d){return QUOTES[(d-1)%QUOTES.length];}
+
+// ── PALETTES ──
+const PALS={
+  warm:   {ov1:'rgba(160,100,20,.22)', text:'#F5F0E8',accent:'#D4A84B',rule:'#C4903A',leaf:'#C4903A'},
+  cool:   {ov1:'rgba(30,60,90,.25)',   text:'#EEF2F5',accent:'#88B0C8',rule:'#5888A8',leaf:'#88B0C8'},
+  mist:   {ov1:'rgba(140,132,120,.22)',text:'#F5F2EE',accent:'#C8BCA8',rule:'#B0A890',leaf:'#C8BCA8'},
+  forest: {ov1:'rgba(30,70,30,.22)',   text:'#EEF4EE',accent:'#7AAA80',rule:'#508858',leaf:'#7AAA80'},
+  neutral:{ov1:'rgba(50,48,40,.20)',   text:'#F5F2EC',accent:'#C4B898',rule:'#A89878',leaf:'#C4B898'},
+};
+let curPal='warm';
+
+// ── KEYWORD → ENGLISH QUERY MAP ──
+function autoQuery(quote){
+  const q=quote.toLowerCase();
+  if(q.includes('invierno')||q.includes('nieve')||q.includes('frío')||q.includes('verano invencible'))
+    return 'winter mountain snow mist';
+  if(q.includes('luz')||q.includes('oscuridad')||q.includes('sombra')||q.includes('tinieblas'))
+    return 'light rays darkness nature';
+  if(q.includes('camino')||q.includes('sendero')||q.includes('viaje')||q.includes('andar'))
+    return 'road path fog nature';
+  if(q.includes('mar')||q.includes('océano')||q.includes('horizonte')||q.includes('orilla'))
+    return 'ocean sunset horizon';
+  if(q.includes('montaña')||q.includes('cima')||q.includes('niebla')||q.includes('cumbre'))
+    return 'mountain fog clouds';
+  if(q.includes('árbol')||q.includes('bosque')||q.includes('raíz'))
+    return 'tree autumn forest';
+  if(q.includes('libro')||q.includes('leer')||q.includes('palabra')||q.includes('escribir'))
+    return 'book coffee light';
+  if(q.includes('lluvia')||q.includes('ventana')||q.includes('tormenta'))
+    return 'rain window drops';
+  if(q.includes('amor')||q.includes('corazón')||q.includes('amar'))
+    return 'love nature warm light';
+  if(q.includes('mente')||q.includes('pensar')||q.includes('inconsciente')||q.includes('alma'))
+    return 'meditation forest mist';
+  if(q.includes('esperanza')||q.includes('amanecer')||q.includes('aurora'))
+    return 'sunrise dawn sky';
+  if(q.includes('fuerza')||q.includes('luchar')||q.includes('vencer'))
+    return 'mountain storm dramatic';
+  if(q.includes('soledad')||q.includes('solo')||q.includes('silencio'))
+    return 'solitary person landscape';
+  if(q.includes('tiempo')||q.includes('pasado')||q.includes('recuerdo'))
+    return 'misty morning vintage nature';
+  if(q.includes('muerte')||q.includes('morir'))
+    return 'dark fog moody landscape';
+  if(q.includes('faro'))
+    return 'lighthouse storm ocean';
+  // rotate through atmospheric defaults
+  const pool=[
+    'winter mountain mist',
+    'foggy forest morning',
+    'lone tree field sky',
+    'ocean sunset calm',
+    'mountain snow clouds',
+    'misty valley sunrise',
+    'road fog nature',
+    'forest light rays',
+  ];
+  return pool[quote.length % pool.length];
+}
+
+let currentImgUrl=null;
+
+// ── FETCH FROM PEXELS — aleatoria por día ──
+async function fetchImage(query, day){
+  // Página aleatoria entre 1 y 5 basada en el día + un número aleatorio
+  const page = Math.floor(Math.random() * 5) + 1;
+  const per  = 15;
+  const url  = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${per}&page=${page}&orientation=square`;
+  const res  = await fetch(url, {headers:{Authorization: PEXELS_KEY}});
+  if(!res.ok) throw new Error('Pexels ' + res.status);
+  const data = await res.json();
+  if(!data.photos||data.photos.length===0) throw new Error('Sin resultados para: '+query);
+  // Selección completamente aleatoria entre los resultados
+  const idx   = Math.floor(Math.random() * data.photos.length);
+  const photo = data.photos[idx];
+  return photo.src.large2x || photo.src.large || photo.src.original;
+}
+
+// ── GENERATE ──
+async function generate(){
+  const quote    = document.getElementById('qText').value.trim();
+  const selTheme = document.getElementById('imgTheme').value;
+  const day      = parseInt(document.getElementById('dayNum').value)||1;
+  if(!quote){setStatus('Escribe una frase primero.');return;}
+
+  const query = selTheme==='auto' ? autoQuery(quote) : selTheme;
+
+  document.getElementById('card-loader').classList.add('on');
+  document.getElementById('genBtn').disabled=true;
+  setStatus('Buscando imagen para: '+query+' …');
+
+  try{
+    const imgUrl = await fetchImage(query, day);
+    currentImgUrl = imgUrl;
+    // preload
+    await new Promise((resolve,reject)=>{
+      const img=new Image();
+      img.crossOrigin='anonymous';
+      img.onload=resolve;
+      img.onerror=reject;
+      img.src=imgUrl;
+      setTimeout(reject,15000);
+    });
+    document.getElementById('card-bg').style.backgroundImage=`url('${imgUrl}')`;
+    updateText();
+    setStatus('✓ Imagen: '+query);
+  } catch(e){
+    setStatus('Error: '+e.message);
+    console.error(e);
+  }
+
+  document.getElementById('card-loader').classList.remove('on');
+  document.getElementById('genBtn').disabled=false;
+}
+
+// ── UPDATE TEXT & COLORS ──
+function updateText(){
+  const q=document.getElementById('qText').value.trim();
+  const a=document.getElementById('aText').value.trim();
+  const d=document.getElementById('dayNum').value||'1';
+  const p=PALS[curPal];
+  document.getElementById('cc-quote').textContent=q;
+  document.getElementById('cc-quote').style.fontSize=fontSize(q);
+  document.getElementById('cc-quote').style.color=p.text;
+  document.getElementById('cc-author').textContent=a;
+  document.getElementById('cc-author').style.color=p.text;
+  document.getElementById('cc-oq').style.color=p.text;
+  document.getElementById('cc-dash').style.color=p.text;
+  document.getElementById('cc-brand').style.color=p.text;
+  document.getElementById('cc-day').textContent=`Día ${d} · 365`;
+  document.getElementById('cc-day').style.color=p.text;
+  document.getElementById('cc-rule').style.background=p.rule;
+  document.getElementById('cc-dot').style.background=p.accent;
+  document.getElementById('cc-leaf').style.color=p.leaf;
+  document.getElementById('card-ov1').style.background=p.ov1;
+}
+
+function fontSize(t){
+  const l=t.length;
+  if(l<55)  return '30px';
+  if(l<100) return '26px';
+  if(l<150) return '22px';
+  if(l<210) return '19px';
+  return '16.5px';
+}
+function setStatus(m){document.getElementById('statusTxt').textContent=m;}
+
+// ── LOAD DAY ──
+function loadDay(){
+  const day=Math.max(1,Math.min(365,parseInt(document.getElementById('dayNum').value)||1));
+  document.getElementById('dayNum').value=day;
+  const q=getQuote(day);
+  document.getElementById('qText').value=q.q;
+  document.getElementById('aText').value=q.a;
+  updateText();
+}
+function changeDay(d){
+  const el=document.getElementById('dayNum');
+  el.value=Math.max(1,Math.min(365,(parseInt(el.value)||1)+d));
+  loadDay();
+  // genera imagen automáticamente al cambiar de día
+  generate();
+}
+
+// ── DOWNLOAD 1080×1080 ──
+async function downloadCard(){
+  if(!currentImgUrl){setStatus('Genera la postal primero.');return;}
+  const card=document.getElementById('card');
+  const day =document.getElementById('dayNum').value||'1';
+  const scale=1080/520;
+
+  card.style.width='1080px';
+  card.style.height='1080px';
+
+  const els=[
+    {id:'cc-quote', base:parseFloat(document.getElementById('cc-quote').style.fontSize)||22},
+    {id:'cc-author',base:16},{id:'cc-brand',base:8.5},{id:'cc-day',base:8},{id:'cc-oq',base:80},
+  ];
+  els.forEach(({id,base})=>document.getElementById(id).style.fontSize=(base*scale)+'px');
+
+  try{
+    const canvas=await html2canvas(card,{scale:1,useCORS:true,allowTaint:true,
+      backgroundColor:null,width:1080,height:1080,logging:false});
+    const link=document.createElement('a');
+    link.download=`reflexiones-dia-${day}.png`;
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+    setStatus('✓ Descargada · día '+day);
+  }catch(e){setStatus('Error al exportar.');}
+
+  card.style.width='520px';
+  card.style.height='520px';
+  els.forEach(({id,base})=>document.getElementById(id).style.fontSize=base+'px');
+  updateText();
+}
+
+// ── PALETTE BUTTONS ──
+document.querySelectorAll('.pdot').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.pdot').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    curPal=btn.dataset.p;
+    updateText();
+  });
+});
+
+// ── INIT — detecta el día del año de hoy automáticamente ──
+function todayDayOfYear(){
+  const now=new Date();
+  const start=new Date(now.getFullYear(),0,0);
+  return Math.floor((now-start)/(1000*60*60*24));
+}
+document.getElementById('dayNum').value=todayDayOfYear();
+loadDay();
+setTimeout(generate,400);
+</script>
+</body>
+</html>
