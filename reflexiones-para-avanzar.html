@@ -293,6 +293,18 @@ function autoQuery(quote){
 
 let currentImgUrl=null;
 
+// ── Convierte URL de imagen a base64 (evita problemas CORS al exportar) ──
+async function toBase64(url){
+  const res = await fetch(url, {mode:'cors'});
+  const blob = await res.blob();
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onloadend = ()=> resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
 // ── FETCH FROM PEXELS — aleatoria por día ──
 async function fetchImage(query, day){
   // Página aleatoria entre 1 y 5 basada en el día + un número aleatorio
@@ -324,17 +336,10 @@ async function generate(){
 
   try{
     const imgUrl = await fetchImage(query, day);
-    currentImgUrl = imgUrl;
-    // preload
-    await new Promise((resolve,reject)=>{
-      const img=new Image();
-      img.crossOrigin='anonymous';
-      img.onload=resolve;
-      img.onerror=reject;
-      img.src=imgUrl;
-      setTimeout(reject,15000);
-    });
-    document.getElementById('card-bg').style.backgroundImage=`url('${imgUrl}')`;
+    // Convertir a base64 para evitar problemas CORS al exportar en móvil
+    const base64Img = await toBase64(imgUrl);
+    currentImgUrl = base64Img;
+    document.getElementById('card-bg').style.backgroundImage=`url('${base64Img}')`;
     updateText();
     setStatus('✓ Imagen: '+query);
   } catch(e){
@@ -352,16 +357,22 @@ function updateText(){
   const a=document.getElementById('aText').value.trim();
   const d=document.getElementById('dayNum').value||'1';
   const p=PALS[curPal];
-  document.getElementById('cc-quote').textContent=q;
-  document.getElementById('cc-quote').style.fontSize=fontSize(q);
-  document.getElementById('cc-author').textContent=a;
+  const quoteEl=document.getElementById('cc-quote');
+  const authorEl=document.getElementById('cc-author');
+  quoteEl.textContent=q;
+  quoteEl.style.fontSize=fontSize(q);
+  quoteEl.style.color='#FFFFFF';
+  quoteEl.removeAttribute('color');
+  authorEl.textContent=a;
+  authorEl.style.color='#FFFFFF';
+  document.getElementById('cc-oq').style.color='#FFFFFF';
   document.getElementById('cc-dash').style.color='#FFFFFF';
-  document.getElementById('cc-brand').style.color=p.text;
+  document.getElementById('cc-brand').style.color='#FFFFFF';
   document.getElementById('cc-day').textContent=`Día ${d} · 365`;
-  document.getElementById('cc-day').style.color=p.text;
-  document.getElementById('cc-rule').style.background=p.rule;
+  document.getElementById('cc-day').style.color='#FFFFFF';
+  document.getElementById('cc-rule').style.background='#FFFFFF';
   document.getElementById('cc-dot').style.background=p.accent;
-  document.getElementById('cc-leaf').style.color=p.leaf;
+  document.getElementById('cc-leaf').style.color='#FFFFFF';
   document.getElementById('card-ov1').style.background=p.ov1;
 }
 
@@ -411,30 +422,29 @@ async function downloadCard(){
 
   try{
     const canvas=await html2canvas(card,{scale:1,useCORS:true,allowTaint:true,
-      backgroundColor:null,width:1080,height:1080,logging:false});
-    const dataUrl=canvas.toDataURL('image/png');
+      backgroundColor:'#000000',width:1080,height:1080,logging:false,imageTimeout:20000});
+    const dataUrl=canvas.toDataURL('image/png',1.0);
 
-    // Detectar si es iOS/Safari
-    const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isSafari=/^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
 
-    if(isIOS||isSafari){
-      // En iOS: abrir imagen en nueva pestaña para guardar con toque largo
-      const win=window.open();
-      win.document.write(`
-        <html><head><meta name="viewport" content="width=device-width,initial-scale=1">
-        <style>body{margin:0;background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;}
-        img{max-width:100%;border-radius:4px;}
-        p{color:#fff;font-size:14px;margin-top:16px;text-align:center;opacity:.8;}</style></head>
-        <body>
-        <img src="${dataUrl}" alt="Postal día ${day}">
-        <p>Mantén presionada la imagen → "Añadir a Fotos"</p>
-        </body></html>
-      `);
-      win.document.close();
-      setStatus('✓ Toca y mantén la imagen → Añadir a Fotos');
+    if(isIOS){
+      // Reemplazar todo el contenido de la página actual con la imagen
+      // (más confiable que window.open, que Safari a veces bloquea)
+      document.body.innerHTML = `
+        <div style="min-height:100vh;background:#111;display:flex;flex-direction:column;
+          align-items:center;justify-content:center;padding:20px;font-family:sans-serif;">
+          <img src="${dataUrl}" style="max-width:100%;border-radius:6px;box-shadow:0 8px 30px rgba(0,0,0,.5);">
+          <p style="color:#fff;font-size:15px;margin-top:20px;text-align:center;opacity:.85;">
+            Mantén presionada la imagen y elige<br><strong>"Añadir a Fotos"</strong>
+          </p>
+          <button onclick="location.reload()" style="margin-top:24px;padding:12px 28px;
+            background:transparent;border:1px solid #7A9E87;color:#7A9E87;font-size:13px;
+            letter-spacing:.15em;text-transform:uppercase;cursor:pointer;">
+            ← Volver al generador
+          </button>
+        </div>`;
     } else {
-      // En Android/Chrome: descarga directa
       const link=document.createElement('a');
       link.download=`reflexiones-dia-${day}.png`;
       link.href=dataUrl;
@@ -442,7 +452,7 @@ async function downloadCard(){
       setStatus('✓ Descargada · día '+day);
     }
   }catch(e){
-    setStatus('Error: '+e.message);
+    setStatus('Error al generar imagen: '+e.message);
     console.error(e);
   }
 
